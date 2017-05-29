@@ -9,7 +9,7 @@ typedef struct func_type_struct {
 	int type;
 } FUNCTYPE;
 
-typedef struct func_type_struct {
+typedef struct var_type_struct {
 	char *name;
 	char *type_str;
 	int type;
