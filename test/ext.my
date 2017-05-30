@@ -1,0 +1,16 @@
+extern do_verbose( str message);
+extern do_isql( str database, str query);
+extern checkret( str retval, str message, str option);
+extern setdb( str dsquery, str user);
+extern run_loop( str number, str function, str arguements);
+extern send_email( str address, str subject, str message);
+extern sleep( int interval);
+extern exit( int ret_value);
+extern display( str message);
+extern get_envfile( str filename);
+extern get_param( str envfile, str param);
+extern outfile( str filename, str results, str doloop);
+extern do_ddl( str db, str type, str name, str outfile);
+extern do_filter( str filename, str start);
+
+global str RES;

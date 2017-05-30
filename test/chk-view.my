@@ -1,0 +1,75 @@
+#!/bin/mysh
+
+#include "ext.my"
+
+#
+# chk-procs.sh
+#
+# Author: John Gardner
+# Date: 30 Jan 2017
+#
+# 	Check an object exists.
+#
+
+global str RETVAL;
+global str TARGET;
+global str OBJ_NAME;
+
+do_init
+
+proc check_obj( str P_DB, str P_NAME) {
+
+	str NOW;
+
+	do_isql( "$P_DB", "select convert(varchar(40),name),type,crdate,getdate() name 
+				from sysobjects where name like '$P_NAME'");
+	checkret( "$?", "Failed to select stored proc names in $P_DB", "nolog");
+
+	RETVAL=$(echo $RES);
+
+	if [ ! -z "$RETVAL" ] then
+		display( "$RES");
+	else
+		NOW=$(date);
+		echo "$P_NAME is missing at $NOW";
+	fi
+}
+
+proc usage( str FULLNAME) {
+
+	str NAME;
+
+        NAME=$(basename "$FULLNAME");
+
+        echo "usage: $NAME [-a][-t][-v][-d] target object_name"
+	echo "";
+	echo " -a = all objects (procs, views) default is procs only";
+	echo " -t = Testmode, no changes to be made";
+	echo " -v = Verbose output";
+	echo " -d = Database name";
+
+        exit(1);
+}
+
+getopt "a,DOALL,v,VERBOSE,e:,USE_ENV,u:,USE_USER,d:,DATABASE,t,TESTMODE";
+
+if [ $# -ne 2 ] then
+        usage( $0);
+fi
+
+if [ -z "$DATABASE" ] then
+	echo "";
+	echo "Must supply database name";
+	echo "";
+        usage( $0);
+fi
+
+TARGET="$1";
+OBJ_NAME="$2";
+setdb( "$TARGET", "$USE_USER");
+
+check_obj( "$DATABASE", "$OBJ_NAME");
+
+do_finish
+
+exit(0);

@@ -1,0 +1,93 @@
+#!/bin/mysh
+
+#include "ext.my"
+
+#
+# chk-rtci.sh - CHeck where the RTCI interface is pointing to
+#
+# Author: John Gardner
+# Date: 1 April 2010
+#
+
+global str DATASERVER;
+global str DBNAME;
+global str TARGET;
+
+do_init
+
+proc show_rpc( str P_DBNAME, str P_TABLE) {
+
+	do_isql( "$P_DBNAME", "sp_helpobjectdef $P_TABLE");
+	checkret( "$?", "sp_helpobjectdef $P_TABLE failed!", "nolog");
+	display( "$RES");
+}
+
+proc doall( str P_TABLE) {
+
+	str L_DB;
+
+	for L_DB in $DB_LIST
+	do
+		echo $L_DB;
+
+		show_rpc( "$L_DB", "$P_TABLE");
+
+	done
+}
+
+proc usage( str ARGV) {
+
+	str NAME;
+
+        NAME=$(basename "$ARGV");
+
+        echo "$NAME: [-a][-v][-e env][-u user] dataserver";
+        echo "";
+        echo "-v = verbose output";
+        echo "-e = env to use (ie FSGDEV2-TST1)";
+        echo "-u = database user to login as";
+	echo "-a = check all databases";
+	echo "";
+
+        exit 1;
+}
+
+getopt "a,DOALL,u:,USE_USER,e:,USE_ENV,v,VERBOSE";
+
+if [ $# -ne 1 ] then
+        usage($0);
+fi
+
+DATASERVER="$1";
+
+setdb( "$DATASERVER", $USE_USER);
+
+get_envfile( "$TMPENV");
+
+if [ ! -z "$DOALL" ] then
+
+	for RPC_TARGET in $RPC_LIST
+	do
+		DBNAME=$(echo $RPC_TARGET|cut -d: -f1);
+		TARGET=$(echo $RPC_TARGET|cut -d: -f2);
+
+		doall( "$TARGET");
+	done
+
+elif [ ! -z "$RPC_LIST" ] then
+	echo "rpc_list = $RPC_LIST";
+
+	for RPC_TARGET in $RPC_LIST
+	do
+		DBNAME=$(echo $RPC_TARGET|cut -d: -f1);
+		TARGET=$(echo $RPC_TARGET|cut -d: -f2);
+
+		show_rpc("$DBNAME","$TARGET");
+	done
+else
+	echo "\$RPC_LIST not set";
+
+	doall();
+fi
+
+do_finish

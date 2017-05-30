@@ -1,0 +1,194 @@
+#!/bin/mysh
+
+#include "ext.my"
+
+#
+# chk-rep.my
+#
+# Check replication template names
+#
+# Author: John Gardner
+# Date: 1 April 2010
+#
+
+global str DBLIST;
+
+do_init
+
+proc list_procs( str P_DBNAME) {
+
+	do_isql( "$P_DBNAME", "
+			select
+				name
+			from
+				sysobjects o
+			where
+				type = 'P'
+				and (sysstat & -32768) = -32768
+				and (sysstat & 64) = 64
+	");
+
+	if [ "$RETVAL" -ne 2 ] then
+		checkret( "$?", "select replicated proc names failed", "nolog");
+	fi
+}
+
+proc list_dbs() {
+
+	get_param( "$ENVFILE", "DB_LIST");
+	RES=$DB_LIST;
+}
+
+proc do_dump( str P_PROC) {
+
+	str L_PROC, L_DBNAME;
+
+	L_PROC=$(echo $P_PROC|cut -d. -f2);
+	L_DBNAME=$(echo $P_PROC|cut -d. -f1);
+
+	if [ ! -z "$VERBOSE" ] then
+		echo "dumping db=$L_DBNAME proc=$L_PROC";
+	fi
+
+	ddlgen -U$DBUSER -I$SYBASE/interfaces -S$DSQUERY -P$DBPASSWD \
+		-D$L_DBNAME -TP -N$T_PROC \
+		-O$HOME/tmp/$L_DBNAME-$T_PROC-out.sql \
+		-E$HOME/tmp/err.txt;
+
+}
+
+proc do_dump_hdr( str P_PNAME) {
+
+	str L_PNAME, L_DB, VAL;
+
+	L_PNAME=$(echo $P_PNAME|cut -d. -f2);
+	L_DB=$(echo $P_PNAME|cut -d. -f1);
+
+	do_isql( "$T_DB", "
+			SELECT c.text
+			FROM sysobjects AS o
+				INNER JOIN syscomments AS c
+				ON o.id = c.id
+			WHERE o.name = '$L_PNAME'
+	");
+	checkret( "$?", "select proc text $L_PNAME failed", "nolog");
+
+	VAL=$(cat <<EOF|grep -v "\-\-.*@"|grep "@rs_repdef.*varchar"
+$RES
+EOF
+);
+	VAL=$(echo $VAL|cut -d\" -f2);
+
+	echo "	$VAL";
+}
+
+proc do_dump_list( str P_TNAME) {
+
+	echo "$P_TNAME";
+}
+
+proc do_datas( str P_DATAS) {
+
+	str CONFIGFILE;
+
+	setdb( "$P_DATAS", $USE_USER);
+
+	CONFIGFILE="$HOME/${DSQUERY}.cfg";
+
+	if [ -f "$CONFIGFILE" ] then
+		echo "Config file exists, using proclist";
+
+		get_envfile( "$ENVFILE");
+
+		for TABLE in $REP_PROCS
+		do
+			do_dump_list( $TABLE);
+		done
+	else
+		echo "No Config file, using sp_setproc";
+	fi
+}
+
+proc usage( str ARGV) {
+
+	str NAME;
+
+        NAME=$(basename "$ARGV");
+
+        echo "usage: $NAME [-v][-m mailaddr][-e env][-u user] dataserver";
+        echo "";
+        echo "-m = mail report to mailaddr";
+        echo "-v = verbose output";
+        echo "-d = dump proc sql";
+        echo "-c = use configuration file";
+        echo "-e = env to use (ie FSGDEV2-TST1)";
+        echo "-u = database user to login as";
+
+        exit(1);
+}
+
+getopt "m:,MAILTO,v,VERBOSE,d,DODUMP,c,USE_CONF,e:,USE_ENV,u:,USE_USER";
+
+if [ \( "$#" -ne 1 \) -a \( "$#" -ne 2 \) ] then
+        usage $0;
+fi
+
+setdb( "$1", $USE_USER);
+
+if [ $# -eq 2 ] then
+	list_procs( "$2");
+
+	if [ "$RETVAL" -ne 2 ] then
+		for TABLE in $RES
+		do
+			echo "$2 : $TABLE";
+			do_dump_hdr( "$2.$TABLE");
+		done
+	fi
+else
+
+	get_envfile( "$ENVFILE");
+
+	if [ ! -z "$DODUMP" ] then
+		echo "Dumping sql";
+
+		if [ ! -z "$USE_CONF" ] then
+			for TABLE in $REP_PROCS
+			do
+				do_dump( "$TABLE");
+			done
+		else
+			list_dbs;
+			DBLIST=$RES;
+			for DB in $DBLIST
+			do
+				list_procs( "$DB");
+				if [ "$RETVAL" -ne 2 ] then
+					for TABLE in $RES
+					do
+						echo "$DB : $TABLE";
+						do_dump( "$DB.$TABLE");
+					done
+				fi
+			done
+		fi
+	else
+		for DBNAME in $DB_LIST
+		do
+			echo "DB=$DBNAME";
+
+			list_procs( "$DBNAME");
+			if [ "$RETVAL" -ne 2 ] then
+				for TABLE in $RES
+				do
+					echo "$DBNAME : $TABLE";
+					do_dump_hdr( "$DBNAME.$TABLE");
+				done
+			fi
+		done
+	fi
+fi
+
+do_finish
+
+exit 0;

@@ -1,0 +1,63 @@
+#!/bin/mysh
+
+#include "ext.my"
+
+#
+# chk-stat.sh - Display the status of the replication agents in each database
+#
+# Author: John Gardner
+# Date: 1 June 2010
+#
+
+do_init
+
+proc check_rep( str P_DB) {
+
+	do_isql( "$P_DB", "$P_DB..sp_help_rep_agent $P_DB,process");
+	checkret( "$?", "Can't get rep server status for $P_DB!", "nolog");
+
+	display( "$RES");
+}
+
+proc check_ds( str P_DS) {
+
+	setdb "$P_DS";
+
+	get_envfile( "$TMPENV");
+
+	for DB in $REP_AGENT
+	do
+	        echo $DB;
+	        check_rep( "$DB");
+	done
+
+	rm -f $TMPENV;
+}
+
+proc usage() {
+
+	str NAME;
+
+	NAME=$(basename $1);
+	echo "usage: $NAME [-v][-m email-addr] dataserver";
+	echo "";
+	echo " -v = verbose output";
+	echo " -m = address to email report to";
+
+	exit 1;
+
+}
+
+getopt "v,VERBOSE,m:,MAILARG";
+
+if [ $# -lt 1 ] then
+        usage $0;
+fi
+
+for DS in "$*"
+do
+	echo "Checking $DS";
+	check_ds( "$DS");
+done
+
+do_finish
