@@ -1,0 +1,3 @@
+#!/bin/mysh
+
+echo "update_stats $P_SERVER complete ("`date +%T`")";

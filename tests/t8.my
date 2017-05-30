@@ -1,0 +1,5 @@
+
+loop echo "a b"; LINE
+do
+	echo "got $LINE";
+done

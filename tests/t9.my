@@ -1,0 +1,13 @@
+#include "ext.my"
+
+global int test;
+
+test = 1;
+
+do_init
+
+extern test1( str a, int b);
+
+test1("hi there",1);
+
+do_finish

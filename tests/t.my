@@ -1,0 +1,7 @@
+#line 1 "t.my"
+
+echo "hello";
+
+#include "t0.my"
+
+echo "there";

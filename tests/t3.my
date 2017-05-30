@@ -1,0 +1,17 @@
+#!/bin/mysh
+
+case $1 in
+	a|b)
+		echo "a or b";
+		echo "a2 or b2";
+		;;
+	c )
+		echo "c";
+		echo "c2";
+		;;
+	* )
+		echo "got star";
+		;;
+esac
+
+echo "done";

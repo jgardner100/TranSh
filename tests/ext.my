@@ -1,0 +1,8 @@
+extern do_verbose( str message);
+extern do_isql( str database, str query);
+extern checkret( str retval, str message);
+extern setdb( str dsquery);
+extern run_loop( str number, str function, str arguements);
+extern send_email( str address, str subject, str message);
+extern sleep( int interval);
+extern exit( int ret_value);

@@ -1,0 +1,8 @@
+
+while [ a = b ]
+do
+	echo a;
+	echo b;
+done
+
+echo "done";

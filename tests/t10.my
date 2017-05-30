@@ -1,0 +1,13 @@
+# test1
+# test2
+
+str a;
+str b;
+int COUNT=0, TESTA=2;
+
+a="this
+is
+a
+test";
+COUNT=2;
+DUMMY=2;

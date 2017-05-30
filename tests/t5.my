@@ -1,0 +1,16 @@
+#!/bin/mysh
+
+cat <<
+hello
+>
+;
+
+bcp <<
+DBPASSWD
+>
+;
+
+                bcp "$DB.dbo.$NAME" out $FILE $OPTS <<
+$DBPASSWD
+>
+;

@@ -1,0 +1,31 @@
+#!/bin/mysh
+
+do_init
+
+proc test1( str a, int b,const c){
+
+	str testvar;
+
+	testvar = "1";
+	badvar = "2";
+
+	echo $a $b $c;
+} 
+
+str STRING;
+int INTEGER;
+
+	testvar = "1";
+
+test1();
+test1(oneparam);
+test1(twoparam,there);
+test1(threeparam,1,there);
+test1( "hello (`date`)",1, "there");
+test1( way, too, many, args);
+
+badname( "hello",1, "there");
+
+ENTRY=$( grep \^${USERNAME}: $HOME/refresh/pwd/$DSQUERY);
+
+do_finish

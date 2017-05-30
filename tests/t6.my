@@ -1,0 +1,21 @@
+#!/bin/mysh
+
+#include "ext.my"
+
+error
+
+str A, B;
+int C, D;
+
+proc test1( str P_MSG, all P_REST) {
+
+	echo $P_MSG $P_REST;
+}
+
+proc test2( all P_ALL) {
+
+	echo $P_ALL;
+}
+
+test1 "a" "b";
+test2 "a" "b";
