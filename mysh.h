@@ -1,4 +1,4 @@
-#define VERSION "1.0 pl 17"
+#define VERSION "1.0 pl 18"
 
 #define PRIVATE static
 #define PUBLIC
@@ -107,6 +107,12 @@ typedef struct buffer_struct {
 	long size;
 } BUFFER;
 
+typedef struct var_type_struct {
+        char *name;
+        char *type_str;
+        int type;
+} VARTYPE;
+
 extern int lineno;
 extern char *file_name;
 
@@ -144,7 +150,7 @@ extern void add_func_args( char *func_name, NODE *args);
 extern char *find_func_name( char *func_name);
 extern LISTNODE *find_func( char *func_name);
 extern void add_var( LISTHEAD *chain, char *var_name, int type);
-extern char *find_var( LISTHEAD *chain, char *var_name);
+extern VARTYPE *find_var( LISTHEAD *chain, char *var_name);
 extern void init_tracker(void);
 extern void close_tracker(void);
 extern void tracker_summary( LISTHEAD *global_chain);

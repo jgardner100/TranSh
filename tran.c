@@ -58,6 +58,27 @@ PUBLIC void dump_comment( NODE *comment)
 	}
 }
 
+PUBLIC char *type_to_name( int type)
+{
+	char *type_str;
+
+	switch( type) {
+		case T_INT:
+			type_str = "int";
+			break;
+		case T_CONST:
+			type_str = "const";
+			break;
+		case T_STR:
+			type_str = "str";
+			break;
+		default:
+			type_str = "unknown";
+	}
+
+	return type_str;
+}
+
 PUBLIC char *type_to_str( NODE *var_type)
 {
 	char *type_str;
@@ -366,7 +387,8 @@ PUBLIC void dump_decl( LISTHEAD *localvars, NODE *code)
 
 PUBLIC void dump_code( LISTHEAD *localvars, NODE *code)
 {
-	NODE *args, *var_ptr;
+	NODE *args;
+	VARTYPE *var_ptr;
 	char *typeset;
 	int count;
 
@@ -396,21 +418,23 @@ PUBLIC void dump_code( LISTHEAD *localvars, NODE *code)
 		fprintf( yyout, " %s " ,code->name);
 		break;
 	case T_EQUALS:
-		if( find_var( localvars, code->name) == NULL)
-			if( find_var( global_var, code->name) == NULL)
-				fprintf( stderr, "%s %d: Assign to unknown %s\n", code->file_name, code->lineno, code->name);
-
-/*
-		if( (var_ptr = find_var( localvars, code->name)) != NULL)
-			printf( "got local %s\n", var_ptr->name);
-		else
+		if((var_ptr = find_var(localvars, code->name)) == NULL)
 		{
-			if( (var_ptr = find_var( global_var, code->name)) != NULL)
-				printf( "got global %s\n", var_ptr->name);
-			else
+			if((var_ptr = find_var(global_var, code->name)) == NULL)
 				fprintf( stderr, "%s %d: Assign to unknown %s\n", code->file_name, code->lineno, code->name);
 		}
-*/
+		if( var_ptr != NULL)
+			if( (code->args->type < 100) &&
+				(var_ptr->type != code->args->type)
+			)
+				fprintf( stderr, "%s %d: %s var type mismatch = %s vs %s (%s)\n", 
+						code->file_name,
+						code->lineno,
+						code->name,
+						type_to_name( var_ptr->type),
+						type_to_name( code->args->type),
+						code->args->name
+				);
 
 		INDENT fprintf( yyout, "%s=", code->name);
 		for( count=0, args=code->args; args != NULL; args = args->next)

@@ -9,12 +9,6 @@ typedef struct func_type_struct {
 	int type;
 } FUNCTYPE;
 
-typedef struct var_type_struct {
-	char *name;
-	char *type_str;
-	int type;
-} VARTYPE;
-
 PRIVATE LISTHEAD *func_chain = NULL;
 
 PUBLIC void init_tracker(void)
@@ -185,10 +179,22 @@ PUBLIC void check_func_args( char *fname, NODE *args)
 
 PUBLIC void add_var( LISTHEAD *chain, char *var_name, int type)
 {
-	list_insert( chain, var_name, NULL, NULL,0);
+	VARTYPE *var_info;
+
+	var_info = malloc( sizeof( VARTYPE));
+	var_info->type = type;
+	var_info->name = strdup(var_name);;
+
+	if( type > 200)
+	{
+		printf( "Got %s type %d\n", var_name, type);
+		exit(1);
+	}
+
+	list_insert( chain, var_name, NULL, (void *)var_info, 0);
 }
 
-PUBLIC char *find_var( LISTHEAD *chain, char *var_name)
+PUBLIC VARTYPE *find_var( LISTHEAD *chain, char *var_name)
 {
 	LISTNODE *ptr;
 
@@ -198,7 +204,7 @@ PUBLIC char *find_var( LISTHEAD *chain, char *var_name)
 		{
 			debug( 0, "probe var %s\n", ptr->name); 
 			if( strcmp( ptr->name, var_name) == 0)
-				return ptr->name;
+				return ptr->content;
 		}
 
 	return NULL;

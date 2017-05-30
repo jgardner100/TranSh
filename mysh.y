@@ -153,6 +153,7 @@ NODE *func_node( char *name, NODE *func_args)
 %token PIPE STAR WHILE READ LOOP TYPE_STR TYPE_INT TYPE_CONST TYPE_ALL
 %token EXTERN GLOBAL
 %token <string> STRING NUMBER COMMENT TESTSTRING EXECSTRING REDIRSTRING BLOCK
+%token <string> SYSCODE
 
 %type <node> proc_args statements statement statem_args func_params
 %type <node> else_part elif_parts case_parts case_opt_list type values
@@ -189,6 +190,8 @@ values:
 	STRING
 		{ $$ = value_node( strdup($1), T_STR); }
 	| NUMBER
+		{ $$ = value_node( strdup($1), T_INT); }
+	| SYSCODE
 		{ $$ = value_node( strdup($1), T_INT); }
 	;
 
@@ -323,11 +326,13 @@ elif_parts: {$$=NULL;}
 
 statem_args: {$$=NULL;}
 	| STRING statem_args
-		{ $$ = create_node( strdup($1), $2, STRING); }
+		{ $$ = create_node( strdup($1), $2, T_STR); }
 	| REDIRSTRING statem_args
 		{ $$ = create_node( strdup($1), $2, T_REDIR); }
 	| NUMBER statem_args
-		{ $$ = create_node( strdup($1), $2, NUMBER); }
+		{ $$ = create_node( strdup($1), $2, T_INT); }
+	| SYSCODE statem_args
+		{ $$ = create_node( strdup($1), $2, T_INT); }
 	;
 
 type: TYPE_STR
