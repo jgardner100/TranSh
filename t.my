@@ -1,0 +1,24 @@
+
+str TEST1;
+
+global str TEST2;
+
+proc testa( int p1) {
+
+	str TESTA = "a";
+	str TESTB;
+
+	p1 = 0;
+	p1 = "a";
+	p2 = "b";
+}
+
+str TEST3=1;
+
+str TEST4, TEST5;
+
+str TEST6=1,TEST7=2;
+
+int RETVAL=#?;
+str RET2=#?;
+

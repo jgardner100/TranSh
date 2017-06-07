@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "mysh.h"
+#include "TranSh.h"
 
 struct block_struct {
 	char *name;

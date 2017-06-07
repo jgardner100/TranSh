@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "mysh.h"
+#include "TranSh.h"
 
 extern void lnx_dump_comment( NODE *comment);
 extern void lnx_do_tran( NODE *prog);

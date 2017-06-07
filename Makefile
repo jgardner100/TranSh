@@ -5,28 +5,28 @@ SOURCES=main.c linux.c solaris.c tran.c free.c block.c tracker.c prop.c \
 	list.c file.c
 
 OBJECTS=$(SOURCES:.c=.o)
-EXECUTABLE=mysh
+EXECUTABLE=TranSh
 
 all:	$(SOURCES) $(EXECUTABLE)
 
-$(EXECUTABLE): $(OBJECTS) mysh.l mysh.y mysh.tab.h
+$(EXECUTABLE): $(OBJECTS) TranSh.l TranSh.y TranSh.tab.h
 	gcc -c lex.yy.c
-	gcc -c mysh.tab.c
-	gcc $(OBJECTS) lex.yy.o mysh.tab.o -o $(EXECUTABLE)
+	gcc -c TranSh.tab.c
+	gcc $(OBJECTS) lex.yy.o TranSh.tab.o -o $(EXECUTABLE)
 
 clean:
-	rm -f *.o lex.yy.c mysh.tab.c mysh.tab.h $(EXECUTABLE)
+	rm -f *.o lex.yy.c TranSh.tab.c TranSh.tab.h $(EXECUTABLE)
 
-main.o:	main.c mysh.h
-tran.o:	tran.c mysh.h
-linux.o:	linux.c mysh.h
-solaris.o:	solaris.c mysh.h
-free.o:	free.c mysh.h
-block.o:	block.c mysh.h
-tracker.o:	tracker.c mysh.h
-prop.o:	prop.c mysh.h
-list.o:	list.c mysh.h
-file.o:	file.c mysh.h
-mysh.tab.h:     mysh.l mysh.y
-	flex mysh.l
-	bison -d mysh.y
+main.o:	main.c TranSh.h
+tran.o:	tran.c TranSh.h
+linux.o:	linux.c TranSh.h
+solaris.o:	solaris.c TranSh.h
+free.o:	free.c TranSh.h
+block.o:	block.c TranSh.h
+tracker.o:	tracker.c TranSh.h
+prop.o:	prop.c TranSh.h
+list.o:	list.c TranSh.h
+file.o:	file.c TranSh.h
+TranSh.tab.h:     TranSh.l TranSh.y
+	flex TranSh.l
+	bison -d TranSh.y

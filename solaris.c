@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "mysh.h"
+#include "TranSh.h"
 
 PRIVATE void sol_dump_code( NODE *code);
 PRIVATE int g_linecnt=0;

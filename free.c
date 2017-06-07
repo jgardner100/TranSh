@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "mysh.h"
+#include "TranSh.h"
 
 PUBLIC void do_free( struct node_struct *prog)
 {

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "mysh.h"
+#include "TranSh.h"
 
 typedef struct func_type_struct {
 	char *name;

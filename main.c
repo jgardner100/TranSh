@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "mysh.h"
+#include "TranSh.h"
 
 /*
  * Stuff that goes here is to affect what the lex analyzer will

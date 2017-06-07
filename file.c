@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "mysh.h"
+#include "TranSh.h"
 
 extern YY_BUFFER_STATE yy_scan_buffer(char *base, int size);
 YY_BUFFER_STATE buf_state;

@@ -11,7 +11,7 @@ all:	$(OBJECTS)
 
 
 $(OBJECTS): $(OBJDIR)/%.sh : $(SRCDIR)/%.my
-	mysh -o $@ $^
+	TranSh -o $@ $^
 	@chmod 0755 $@
 	@echo "Compiled "$<" successfully!"
 
