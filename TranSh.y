@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mysh.h"
+#include "TranSh.h"
 
 extern int yylex();
 extern char *yytext;

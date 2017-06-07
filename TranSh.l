@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "mysh.tab.h"
+#include "TranSh.tab.h"
 
 #define LEN(x,y) (sizeof(x)/sizeof(y))
 
