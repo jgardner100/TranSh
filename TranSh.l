@@ -42,6 +42,10 @@ struct keyw_struct {
         ,{"all", TYPE_ALL }
         ,{"const", TYPE_CONST }
 
+        ,{"and", AND }
+        ,{"or", OR }
+        ,{"not", NOT }
+
         ,{"do_init", BLOCK }
         ,{"do_finish", BLOCK }
 };
@@ -126,6 +130,7 @@ int lookup( char *str)
 \)			{ debug(lineno, NULL,"RPAR"); return RPAR;}
 "$("			{ debug(lineno, NULL, "got exec"); return EXEC;}
 "="			{ debug(lineno,  NULL, "got equals"); return EQUALS;}
+"!="			{ debug(lineno,  NULL, "got equals"); return NOTEQUALS;}
 \;\;			{ debug(lineno, NULL,"got double semicolon"); return DSEMIC;}
 \;			{ debug(lineno, NULL,"got semicolon"); return SEMIC;}
 \,			{ debug(lineno, NULL,"got comma"); return COMMA;}
@@ -135,9 +140,6 @@ int lookup( char *str)
 \|			{ debug(lineno, NULL,"got pipe"); return PIPE;}
 \*			{ debug(lineno, NULL,"STAR"); return STAR;}
 [ \t]+                  /* ignore whitespace */;
-"#?"			{ debug(lineno, NULL, "got SYSCODE"); return SYSCODE;}
-"$$"			{ debug(lineno, "str=|word %s|\n",yytext); yylval.string = strdup(yytext); return lookup(yytext);} /* Nasty little hack as var definition is not good enough */
-
 
 \<\<[a-zA-Z0-9/\._ \n\*"|"$]*\>	{ debug(lineno, "str=|redir %s|\n",yytext); yylval.string = strdup(yytext); return REDIRSTRING;}
 
@@ -161,5 +163,5 @@ $[a-zA-Z0-9#?\{\*][a-zA-Z0-9/\._\-\}\*${]*	{ debug(lineno, "str=|var %s|\n",yyte
 
 \[(\\.|[^\]])*\]         { debug(lineno, "|test %s|\n",yytext); lineno += count_cr(yytext); yylval.string = strdup(yytext);return TESTSTRING;}
 
-#[a-zA-Z0-9/\._ \n\*"|"$].*\n			{ debug(lineno, "comment |%s|\n",strip_cr(yytext)); lineno++; check_dir(yytext); yylval.string = strdup(yytext);return COMMENT;}
+#.*\n			{ debug(lineno, "comment |%s|\n",strip_cr(yytext)); lineno++; check_dir(yytext); yylval.string = strdup(yytext);return COMMENT;}
 %%

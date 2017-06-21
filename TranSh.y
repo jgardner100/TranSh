@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "TranSh.h"
+#include "nodes.h"
 
 extern int yylex();
 extern char *yytext;
@@ -20,144 +21,18 @@ int yywrap()
         return 1;
 } 
  
-NODE *create_node( char *name, NODE *next, int type)
-{
-	NODE *node;
-
-	node = (NODE *)malloc( sizeof( struct node_struct));
-	if( node == NULL)
-	{
-		printf( "Out of mem\n");
-		exit(1);
-	}
-
-	node->name = name;
-	node->next = next;
-	node->type = type;
-	node->func_name = NULL;
-	node->token = strdup(yytext);
-
-	node->lineno = lineno;
-	node->file_name = strdup( file_name);
-
-	return node;
-}
-
-NODE *code_node( char *name, NODE *next, int type, NODE *args, NODE *code)
-{
-	NODE *node;
-
-	node = create_node( name, next, type);
-
-	node->args = args;
-	node->code = code;
-
-	return node;
-}
-
-NODE *value_node( char *string, int type)
-{
-	NODE *node;
-
-	node = create_node( string, NULL, type);
-
-	return node;
-}
-
-NODE *case_node( NODE *next, char *var, NODE *options)
-{
-	NODE *node;
-
-	node = code_node( "case", next, T_CASE, NULL, NULL);
-	node->var = var;
-	node->options = options;
-
-	return node;
-}
-
-NODE *option_node( NODE *opt_list, NODE *code, NODE *next)
-{
-	NODE *node;
-
-	node = code_node( "opt", next, T_OPTION, NULL, NULL);
-	node->opt_list = opt_list;
-	node->code = code;
-
-	return node;
-}
-
-NODE *if_node( NODE *next, char *test_str, NODE *code, NODE *elifp, NODE *elsep)
-{
-	NODE *node;
-
-	node = code_node( "if", next, T_IF, NULL, NULL);
-
-	node->test_str = test_str;
-	node->code = code;
-	node->elsep = elsep;
-	node->elifp = elifp;
-
-	return node;
-}
-
-NODE *for_node( NODE *next, char *variable, char *value, NODE *code)
-{
-	NODE *node;
-
-	node = code_node( "for", next, T_FOR, NULL, code);
-
-	node->variable = variable;
-	node->value = value;
-
-	return node;
-}
-
-NODE *decl_node( char *name, NODE *var_type, NODE *var_value, NODE *var_list)
-{
-	NODE *node;
-
-	node = code_node( name, NULL, T_DECLARE, NULL, NULL);
-
-	node->var_type = var_type;
-	node->var_value = var_value;
-	node->var_list = var_list;
-
-	return node;
-}
-
-NODE *param_node( char *name, NODE *var_type, NODE *next)
-{
-	NODE *node;
-
-	node = code_node( name, next, T_STRING, NULL, NULL);
-
-	node->var_type = var_type;
-
-	return node;
-}
-
-NODE *func_node( char *name, NODE *func_args)
-{
-	NODE *node;
-
-	node = code_node( name, NULL, T_FUNC, NULL, NULL);
-	node->func_args = func_args;
-
-	return node;
-}
-
 %}
 
-%token PROC LBRAK RBRAK LPAR RPAR SEMIC DSEMIC DOT EQUALS LSQUARE RSQUARE EXEC
-%token FOR IN DO DONE CASE ESAC IF THEN ELSE ELIF FI BLANK GETOPT COMMA
-%token PIPE STAR WHILE READ LOOP TYPE_STR TYPE_INT TYPE_CONST TYPE_ALL
-%token EXTERN GLOBAL
+%token PROC LBRAK RBRAK LPAR RPAR SEMIC DSEMIC DOT EQUALS NOTEQUALS LSQUARE
+%token RSQUARE EXEC FOR IN DO DONE CASE ESAC IF THEN ELSE ELIF FI BLANK
+%token GETOPT COMMA PIPE STAR WHILE READ LOOP TYPE_STR TYPE_INT TYPE_CONST
+%token TYPE_ALL EXTERN GLOBAL AND OR NOT
 %token <string> STRING NUMBER COMMENT TESTSTRING EXECSTRING REDIRSTRING BLOCK
 %token <string> SYSCODE
 
 %type <node> proc_args statements statement statem_args func_params
 %type <node> else_part elif_parts case_parts case_opt_list type values
-%type <node> declare_list declare_element
+%type <node> expr declare_list declare_element teststr
 
 %union {
 	char *string;
@@ -195,6 +70,17 @@ values:
 		{ $$ = value_node( strdup($1), T_INT); }
 	;
 
+expr:
+	values
+		{ $$ = $1; }
+	| values EQUALS expr
+		{ $$ = expr_node( "=", T_EQUALS, $1, $3); }
+	| values NOTEQUALS expr
+		{ $$ = expr_node( "!=", T_NOTEQUALS, $1, $3); }
+	| NOT expr
+		{ $$ = expr_node( "not", T_NOT, $2, NULL); }
+	;
+	
 statements: {$$=NULL;}
 	| statement statements { $1->next = $2; $$=$1; }
 	;
@@ -229,6 +115,13 @@ declare_list: declare_element
 			ptr->next = $3;
 			$$ = ptr;
 		}
+	;
+
+teststr:
+	TESTSTRING
+		{ $$ = value_node( $1, T_STRING);}
+	| LBRAK expr RBRAK
+		{ $$ = $2; }
 	;
 
 statement: STRING statem_args SEMIC
@@ -277,7 +170,7 @@ statement: STRING statem_args SEMIC
 		}
 	| LOOP statement STRING DO statements DONE
 		{ $$ = code_node( strdup($3), NULL, T_LOOP, $2, $5); }
-	| IF TESTSTRING THEN statements elif_parts else_part FI
+	| IF teststr THEN statements elif_parts else_part FI
 		{ $$ = if_node( NULL, $2, $4, $5, $6); }
 	| CASE STRING IN case_parts ESAC
 		{ $$ = case_node( NULL, $2, $4); }
@@ -320,7 +213,7 @@ else_part: { $$=NULL;}
 	;
 
 elif_parts: {$$=NULL;}
-	| ELIF TESTSTRING THEN statements elif_parts
+	| ELIF teststr THEN statements elif_parts
 		{ $$ = if_node( $5, $2, $4, NULL, NULL); }
 	;
 

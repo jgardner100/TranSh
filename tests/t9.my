@@ -1,6 +1,6 @@
 #include "ext.my"
 
-global int test;
+int test;
 
 test = 1;
 

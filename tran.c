@@ -235,7 +235,14 @@ PUBLIC void dump_getopt( char *options)
 
 PUBLIC void dump_elif( LISTHEAD *localvars, struct node_struct *code)
 {
-	INDENT fprintf( yyout, "elif %s; then\n", code->test_str);
+	if( code->test_str->type == T_STRING)
+	{
+		INDENT fprintf( yyout, "elif %s; then\n", code->test_str->name);
+	}
+	else
+	{
+		INDENT fprintf( yyout, "elif [ %s ]; then\n", code->test_str->name);
+	}
 	JUMPUP
 	dump_code_chain( localvars, code->code);
 	JUMPBK
@@ -385,6 +392,48 @@ PUBLIC void dump_decl( LISTHEAD *localvars, NODE *code)
 	}
 }
 
+PRIVATE void dump_expr( NODE *expr)
+{
+	if( expr == NULL)
+	{
+		fprintf( stderr, "expr is null");
+		return;
+	}
+
+	if( expr->type == T_EXPR)
+	{
+		switch( expr->expr_type)
+		{
+		case T_EQUALS:
+		case T_NOTEQUALS:
+			dump_expr( expr->left);
+			fprintf( yyout, "%s ", expr->name);
+			dump_expr( expr->right);
+			break;
+		case T_NOT:
+			fprintf( yyout, "! ");
+			dump_expr( expr->left);
+			break;
+		default:
+			fprintf( stderr, "Unknown expr type %d\n", expr->expr_type);
+			return;
+		}
+	}
+	else
+	{
+		switch( expr->type)
+		{
+		case T_STR:
+		case T_INT:
+		case T_CONST:
+			fprintf( yyout, "%s ", expr->name);
+			break;
+		default:
+			fprintf( stderr, "bad expr type of %d\n", expr->type);
+		}
+	}
+}
+
 PUBLIC void dump_code( LISTHEAD *localvars, NODE *code)
 {
 	NODE *args;
@@ -476,7 +525,15 @@ PUBLIC void dump_code( LISTHEAD *localvars, NODE *code)
 		break;
 	case T_IF:
 		INDENT fprintf( yyout, "if ");
-		fprintf( yyout, "%s", code->test_str);
+		if( code->test_str->type == T_STRING)
+			fprintf( yyout, "%s", code->test_str->name);
+		else
+		{
+			/* got an expr to eval */
+			fprintf( yyout, "[ ");
+			dump_expr( code->test_str);
+			fprintf( yyout, "]");
+		}
 		fprintf( yyout, "; then\n");
 		JUMPUP
 		dump_code_chain( localvars, code->code);

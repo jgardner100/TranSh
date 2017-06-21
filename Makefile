@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wno-format-security -g
 
 SOURCES=main.c linux.c solaris.c tran.c free.c block.c tracker.c prop.c \
-	list.c file.c
+	list.c file.c nodes.c
 
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=TranSh
@@ -27,6 +27,7 @@ tracker.o:	tracker.c TranSh.h
 prop.o:	prop.c TranSh.h
 list.o:	list.c TranSh.h
 file.o:	file.c TranSh.h
+nodes.o:	nodes.c nodes.h TranSh.h
 TranSh.tab.h:     TranSh.l TranSh.y
 	flex TranSh.l
 	bison -d TranSh.y

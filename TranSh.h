@@ -1,4 +1,4 @@
-#define VERSION "1.0 pl 18"
+#define VERSION "1.0 pl 19"
 
 #define PRIVATE static
 #define PUBLIC
@@ -13,39 +13,43 @@
 #define JUMPUP level++;
 #define JUMPBK level--;
 
-#define T_PROC    1
-#define T_STATEM  2
-#define T_FOR     3
-#define T_EQUALS  4
-#define T_DOT     5
-#define T_IF      6
-#define T_EXPR    7
-#define T_COMMENT 8
-#define T_DIRECT  9
-#define T_BLANK   10
-#define T_GETOPT  11
-#define T_COMPARE 12
-#define T_JOIN    13
-#define T_CHECK   14
-#define T_NOT     15
-#define T_VALUE   16
-#define T_CASE    17
-#define T_OPTION  18
-#define T_STRING  19
-#define T_REDIR   20
-#define T_PIPE    21
-#define T_WHILE   22
-#define T_LOOP    23
-#define T_BLOCK   24
-#define T_DECLARE 25
-#define T_FUNC    26
+#define T_PROC      1
+#define T_STATEM    2
+#define T_FOR       3
+#define T_EQUALS    4
+#define T_NOTEQUALS 5
+#define T_DOT       6
+#define T_IF        7
+#define T_EXPR      8
+#define T_COMMENT   9
+#define T_DIRECT   10
+#define T_BLANK    11
+#define T_GETOPT   12
+#define T_COMPARE  13
+#define T_JOIN     14
+#define T_CHECK    15
+#define T_VALUE    16
+#define T_CASE     17
+#define T_OPTION   18
+#define T_STRING   19
+#define T_REDIR    20
+#define T_PIPE     21
+#define T_WHILE    22
+#define T_LOOP     23
+#define T_BLOCK    24
+#define T_DECLARE  25
+#define T_FUNC     26
 
-#define T_STR     27
-#define T_INT     28
-#define T_CONST   29
-#define T_ALL     30
-#define T_EXTERN  31
-#define T_GLOBAL  32
+#define T_STR      27
+#define T_INT      28
+#define T_CONST    29
+#define T_ALL      30
+#define T_EXTERN   31
+#define T_GLOBAL   32
+
+#define T_AND      33
+#define T_OR       34
+#define T_NOT      35
 
 typedef struct node_struct {
         char *name;
@@ -66,7 +70,7 @@ typedef struct node_struct {
 	struct node_struct *opt_list;
 
 	/* for if statements */
-	char *test_str;
+	struct node_struct *test_str;
 	struct node_struct *elsep;
 
 	char *elif_str;
@@ -87,6 +91,11 @@ typedef struct node_struct {
 	/* for procs */
 	struct node_struct *args;
 	struct node_struct *code;
+
+	/* expresions */
+	int expr_type;
+	struct node_struct *left;
+	struct node_struct *right;
 } NODE;
 
 typedef struct listnode_struct {

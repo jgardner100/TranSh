@@ -2,8 +2,6 @@
 
 #include "ext.my"
 
-error
-
 str A, B;
 int C, D;
 
