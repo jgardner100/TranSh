@@ -157,8 +157,8 @@ statement: STRING statem_args SEMIC
 		{ $$ = create_node( "blank", NULL, T_BLANK); }
 	| WHILE LPAR values RPAR DO statements DONE
 		{ $$ = code_node( "while", NULL, T_WHILE, $3, $6); }
-	| WHILE TESTSTRING DO statements DONE
-		{ $$ = code_node( "while", NULL, T_WHILE, value_node( strdup($2),STRING),$4); }
+	| WHILE teststr DO statements DONE
+		{ $$ = code_node( "while", NULL, T_WHILE, $2, $4); }
 	| WHILE READ STRING DO statements DONE
 		{
 			NODE *ptr;

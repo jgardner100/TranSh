@@ -555,7 +555,17 @@ PUBLIC void dump_code( LISTHEAD *localvars, NODE *code)
 	case T_WHILE:
 		INDENT fprintf( yyout, "%s", code->name);
 		for( args = code->args; args != NULL; args = args->next)
-			fprintf( yyout, " %s", args->name);
+		{
+			if( args->type != T_EXPR)
+				fprintf( yyout, " %s", args->name);
+	                else
+			{
+				/* got an expr to eval */
+				fprintf( yyout, " [ ");
+				dump_expr( args);
+				fprintf( yyout, "]");
+			}
+		}
 		fprintf( yyout, "\n");
 		INDENT fprintf( yyout, "do\n");
 		JUMPUP
