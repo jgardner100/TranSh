@@ -23,16 +23,17 @@ int yywrap()
  
 %}
 
-%token PROC LBRAK RBRAK LPAR RPAR SEMIC DSEMIC DOT EQUALS NOTEQUALS LSQUARE
+%token PROC LBRAK RBRAK LPAR RPAR SEMIC DSEMIC DOT LSQUARE
+%token EQUALS NOTEQUALS GREATERTHAN LESSTHAN
 %token RSQUARE EXEC FOR IN DO DONE CASE ESAC IF THEN ELSE ELIF FI BLANK
 %token GETOPT COMMA PIPE STAR WHILE READ LOOP TYPE_STR TYPE_INT TYPE_CONST
 %token TYPE_ALL EXTERN GLOBAL AND OR NOT
 %token <string> STRING NUMBER COMMENT TESTSTRING EXECSTRING REDIRSTRING BLOCK
-%token <string> SYSCODE
+%token <string> SYSCODE COMPR
 
 %type <node> proc_args statements statement statem_args func_params
 %type <node> else_part elif_parts case_parts case_opt_list type values
-%type <node> expr declare_list declare_element teststr
+%type <node> comp_expr bool_expr declare_list declare_element teststr
 
 %union {
 	char *string;
@@ -70,14 +71,19 @@ values:
 		{ $$ = value_node( strdup($1), T_INT); }
 	;
 
-expr:
-	values
+comp_expr:
+	values COMPR values
+		{ $$ = expr_node( $2, T_COMPR, $1, $3); }
+	;
+
+bool_expr:
+	comp_expr
 		{ $$ = $1; }
-	| values EQUALS expr
-		{ $$ = expr_node( "=", T_EQUALS, $1, $3); }
-	| values NOTEQUALS expr
-		{ $$ = expr_node( "!=", T_NOTEQUALS, $1, $3); }
-	| NOT expr
+	| comp_expr AND bool_expr
+		{ $$ = expr_node( "and", T_AND, $1, $3); }
+	| comp_expr OR bool_expr
+		{ $$ = expr_node( "or", T_OR, $1, $3); }
+	| NOT bool_expr
 		{ $$ = expr_node( "not", T_NOT, $2, NULL); }
 	;
 	
@@ -120,7 +126,7 @@ declare_list: declare_element
 teststr:
 	TESTSTRING
 		{ $$ = value_node( $1, T_STRING);}
-	| LBRAK expr RBRAK
+	| LBRAK bool_expr RBRAK
 		{ $$ = $2; }
 	;
 
@@ -222,6 +228,8 @@ statem_args: {$$=NULL;}
 		{ $$ = create_node( strdup($1), $2, T_STR); }
 	| REDIRSTRING statem_args
 		{ $$ = create_node( strdup($1), $2, T_REDIR); }
+	| COMPR statem_args
+		{ $$ = create_node( strdup($1), $2, T_STR); }
 	| NUMBER statem_args
 		{ $$ = create_node( strdup($1), $2, T_INT); }
 	| SYSCODE statem_args

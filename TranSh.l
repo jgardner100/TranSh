@@ -129,8 +129,13 @@ int lookup( char *str)
 \(			{ debug(lineno, NULL,"LPAR"); return LPAR;}
 \)			{ debug(lineno, NULL,"RPAR"); return RPAR;}
 "$("			{ debug(lineno, NULL, "got exec"); return EXEC;}
+
+"=="			{ yylval.string = strdup(yytext); debug(lineno,  NULL, "got equals"); return COMPR;}
+"!="			{ yylval.string = strdup(yytext); debug(lineno,  NULL, "got not equals"); return COMPR;}
+"<"			{ yylval.string = strdup(yytext); debug(lineno,  NULL, "got lessthan"); return COMPR;}
+">"			{ yylval.string = strdup(yytext); debug(lineno,  NULL, "got greaterthan"); return COMPR;}
+
 "="			{ debug(lineno,  NULL, "got equals"); return EQUALS;}
-"!="			{ debug(lineno,  NULL, "got equals"); return NOTEQUALS;}
 \;\;			{ debug(lineno, NULL,"got double semicolon"); return DSEMIC;}
 \;			{ debug(lineno, NULL,"got semicolon"); return SEMIC;}
 \,			{ debug(lineno, NULL,"got comma"); return COMMA;}

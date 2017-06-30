@@ -392,6 +392,22 @@ PUBLIC void dump_decl( LISTHEAD *localvars, NODE *code)
 	}
 }
 
+PRIVATE char *translate_expr( char * expr)
+{
+	char *ret_str;
+
+	if( strcmp( expr, "or") == 0)
+		ret_str = "-o";
+	else if( strcmp( expr, "and") == 0)
+		ret_str = "-a";
+	else if( strcmp( expr, "==") == 0)
+		ret_str = "=";
+	else
+		ret_str = expr;
+
+	return ret_str;
+}
+
 PRIVATE void dump_expr( NODE *expr)
 {
 	if( expr == NULL)
@@ -404,10 +420,15 @@ PRIVATE void dump_expr( NODE *expr)
 	{
 		switch( expr->expr_type)
 		{
-		case T_EQUALS:
-		case T_NOTEQUALS:
+		case T_AND:
+		case T_OR:
 			dump_expr( expr->left);
-			fprintf( yyout, "%s ", expr->name);
+			fprintf( yyout, "%s ", translate_expr( expr->name));
+			dump_expr( expr->right);
+			break;
+		case T_COMPR:
+			dump_expr( expr->left);
+			fprintf( yyout, "%s ", translate_expr( expr->name));
 			dump_expr( expr->right);
 			break;
 		case T_NOT:

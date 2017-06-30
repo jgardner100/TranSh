@@ -50,6 +50,7 @@
 #define T_AND      33
 #define T_OR       34
 #define T_NOT      35
+#define T_COMPR    36
 
 typedef struct node_struct {
         char *name;
