@@ -89,7 +89,7 @@ PUBLIC int preprocess_file( BUFFER *buf)
 	char *new_str;
 	int i, start_len, mid_len, end_len, ret;
 	int line_count;
-	char file1_buf[128], file2_buf[128];
+	char file1_buf[256], file2_buf[128];
 	int dir1_len, dir2_len;
 
 	start_ptr = strstr( buf->string, "#include");

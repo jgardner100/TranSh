@@ -132,6 +132,8 @@ teststr:
 
 statement: STRING statem_args SEMIC
 		{ $$ = code_node( strdup($1), NULL, T_STATEM, $2, NULL); }
+        | READ statem_args SEMIC
+		{ $$ = code_node( "read", NULL, T_STATEM, $2, NULL); }
 	| PROC STRING LPAR proc_args RPAR LBRAK statements RBRAK
 		{ $$ = code_node( strdup($2), NULL, T_PROC, $4, $7); }
 	| EXTERN STRING LPAR proc_args RPAR SEMIC
