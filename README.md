@@ -195,14 +195,6 @@ TranSh is optimized for:
 - Efficient file system operations
 - Scalable resource tracking
 
-## License
-
-[Insert appropriate license information]
-
-## Contact & Support
-
-For issues, questions, or contributions, please contact the development team.
-
 ---
 
 **Version**: 1.0  
